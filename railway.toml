@@ -1,0 +1,5 @@
+[build]
+pythonVersion = "3.13"
+
+[deploy]
+startCommand = "gunicorn -b 0.0.0.0:$PORT run:app"
