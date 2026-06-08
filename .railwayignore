@@ -1,0 +1,6 @@
+.env
+.gitignore
+*.pyc
+__pycache__/
+security_audit.log
+init_db.py

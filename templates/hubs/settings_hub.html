@@ -1,0 +1,35 @@
+﻿<div class="mb-4">
+    <h4 class="fw-bold mb-1 theme-heading"><i class="bi bi-gear-fill text-secondary me-2"></i>{{ _('settings') }}</h4>
+    <p class="text-secondary small">{{ _('theme') }} &amp; {{ _('language') }}</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card p-4 h-100" style="background: rgba(15, 17, 30, 0.4); border: 1px solid var(--border-color);">
+            <h5 class="fw-semibold mb-3 theme-heading"><i class="bi bi-palette-fill text-primary me-2"></i>{{ _('theme') }}</h5>
+            <p class="text-secondary small mb-3">{{ _('theme') }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                {% for key, colors in THEME_COLORS.items() %}
+                <a href="?theme={{ key }}&hub=settings" class="btn {% if theme_name == key %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm d-flex align-items-center gap-2" style="border-radius: 20px;">
+                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: {{ colors.primary }}; box-shadow: 0 0 6px {{ colors.glow }};"></span>
+                    {{ _(key) }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 h-100" style="background: rgba(15, 17, 30, 0.4); border: 1px solid var(--border-color);">
+            <h5 class="fw-semibold mb-3 theme-heading"><i class="bi bi-translate text-info me-2"></i>{{ _('language') }}</h5>
+            <p class="text-secondary small mb-3">{{ _('language') }}</p>
+            <div class="d-flex gap-2">
+                <a href="?lang=en&hub=settings" class="btn {% if current_lang == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm d-flex align-items-center gap-2" style="border-radius: 20px;">
+                    <i class="bi bi-flag me-1"></i> {{ _('english') }}
+                </a>
+                <a href="?lang=fr&hub=settings" class="btn {% if current_lang == 'fr' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-sm d-flex align-items-center gap-2" style="border-radius: 20px;">
+                    <i class="bi bi-flag me-1"></i> {{ _('french') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

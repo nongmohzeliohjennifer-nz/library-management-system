@@ -1,0 +1,93 @@
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="fw-bold mb-1 theme-heading"><i class="bi bi-bell-fill text-warning me-2 animate-bell"></i>Library Activity Feed</h4>
+        <p class="text-secondary small">Real-time status updates on reservations, books availability, returns, and library collections</p>
+    </div>
+</div>
+
+<div class="notifications-list">
+    {% if notifications %}
+        {% for note in notifications %}
+            <div class="glass-card p-3 mb-3 border-start-custom border-start-{{ note.category if note.category else 'info' }}" style="background: rgba(20, 24, 46, 0.2);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="notification-icon-wrapper notification-{{ note.category if note.category else 'info' }}">
+                            {% if note.category == 'pending' %}
+                                <i class="bi bi-hourglass-split text-warning" style="font-size: 1.25rem;"></i>
+                            {% elif note.category == 'reserved' %}
+                                <i class="bi bi-bookmark-star-fill text-purple" style="font-size: 1.25rem;"></i>
+                            {% elif note.category == 'collected' %}
+                                <i class="bi bi-person-check-fill text-info" style="font-size: 1.25rem;"></i>
+                            {% elif note.category == 'returned' %}
+                                <i class="bi bi-arrow-return-left text-danger" style="font-size: 1.25rem;"></i>
+                            {% elif note.category == 'available' %}
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 1.25rem;"></i>
+                            {% else %}
+                                <i class="bi bi-bell-fill text-info" style="font-size: 1.25rem;"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="text-white-50 small text-uppercase fw-bold tracking-wide">{{ note.category | capitalize if note.category else 'Notification' }}</div>
+                            <div class="text-light fw-medium">{{ note.message }}</div>
+                        </div>
+                    </div>
+                    <div class="text-secondary small ms-3 text-nowrap">
+                        <i class="bi bi-clock me-1"></i>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-bell-slash mb-2" style="font-size: 2.5rem; display: block; color: var(--text-secondary);"></i>
+            No notifications yet. Library events will appear here as they occur.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.border-start-custom {
+    border-left: 4px solid var(--border-color) !important;
+}
+.border-start-pending { border-left-color: var(--warning, #ffc107) !important; }
+.border-start-reserved { border-left-color: var(--purple, #8b5cf6) !important; }
+.border-start-collected { border-left-color: var(--info, #06b6d4) !important; }
+.border-start-returned { border-left-color: var(--danger, #ef4444) !important; }
+.border-start-available { border-left-color: var(--success, #10b981) !important; }
+
+.notification-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.notification-pending { background: rgba(255, 193, 7, 0.1); }
+.notification-reserved { background: rgba(139, 92, 246, 0.1); }
+.notification-collected { background: rgba(6, 182, 212, 0.1); }
+.notification-returned { background: rgba(239, 68, 68, 0.1); }
+.notification-available { background: rgba(16, 185, 129, 0.1); }
+
+.tracking-wide {
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+}
+
+@keyframes bell-swing {
+    0% { transform: rotate(0); }
+    15% { transform: rotate(15deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(5deg); }
+    60% { transform: rotate(-5deg); }
+    75% { transform: rotate(2deg); }
+    100% { transform: rotate(0); }
+}
+
+.animate-bell {
+    display: inline-block;
+    animation: bell-swing 1s ease-in-out infinite alternate;
+}
+</style>

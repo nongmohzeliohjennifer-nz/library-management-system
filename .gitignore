@@ -1,0 +1,8 @@
+*.pyc
+__pycache__/
+.env
+security_audit.log
+*.egg-info/
+dist/
+.venv/
+venv/

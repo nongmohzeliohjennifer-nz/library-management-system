@@ -1,0 +1,97 @@
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="fw-bold mb-1 theme-heading"><i class="bi bi-shield-lock-fill text-purple me-2"></i>Admin Audit Hub</h4>
+        <p class="text-secondary small">Real-time tracking of registration and login activity logs</p>
+    </div>
+    <a href="{{ url_for('library_dashboard.export_logs') }}" class="btn btn-sm btn-outline-info">
+        <i class="bi bi-download me-1"></i> Export Logs (txt)
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-box">
+            <div class="stat-value primary-text">{{ total_logs }}</div>
+            <div class="stat-label">Total Activities Analyzed</div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-custom align-middle">
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Action</th>
+                <th>IP Address</th>
+                <th>Timestamp (ms)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if logs %}
+                {% for log in logs %}
+                    <tr>
+                        <td class="fw-semibold">{{ log.identifier }}</td>
+                        <td class="text-white-50">{{ log.action }}</td>
+                        <td class="text-white-50">{{ log.ip_address }}</td>
+                        <td class="text-secondary small">{{ log.timestamp }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">No security audit logs found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<hr class="my-5" style="border-color: var(--border-color);">
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="fw-bold mb-1 theme-heading"><i class="bi bi-people-fill text-purple me-2"></i>User Account Management</h4>
+        <p class="text-secondary small">Manage access control by adding or deleting Student or Librarian accounts</p>
+    </div>
+    <button class="btn btn-success-custom btn-sm" data-add-user>
+        <i class="bi bi-person-plus-fill me-1"></i> Add User
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-custom align-middle">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Identifier</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th class="text-end">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if users %}
+                {% for u in users %}
+                    <tr>
+                        <td class="fw-semibold" style="color: var(--theme-text)">{{ u.username }}</td>
+                        <td><code class="small" style="color: var(--theme-text-muted)">{{ u.identifier }}</code></td>
+                        <td class="text-white-50">{{ u.email }}</td>
+                        <td>
+                            <span class="badge badge-role badge-{{ u.role }}">{{ u.role }}</span>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-outline-danger btn-sm border-0" title="Delete User" data-delete-user data-user-id="{{ u.id }}" data-user-ident="{{ u.identifier }}">
+                                <i class="bi bi-person-x-fill me-1"></i>Delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No librarian or student accounts found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>

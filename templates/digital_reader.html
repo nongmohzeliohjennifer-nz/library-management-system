@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Reader - {{ book.title }}</title>
+    <!-- Prevent printing via CSS -->
+    <style>
+        @media print {
+            body { display: none !important; }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #d1d1d1;
+            padding: 20px;
+            /* Disable text selection */
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+        .reader-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2b2b2b;
+            padding: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.05;
+            font-size: 4em;
+            pointer-events: none;
+            color: white;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div class="watermark">{{ current_user.identifier }}</div>
+    <div class="reader-container">
+        <h2>{{ book.title }}</h2>
+        <h4 style="color: #888;">by {{ book.author }}</h4>
+        <hr>
+        <p>This is a simulated digital book content. Saving, selecting text, and printing have been disabled to protect copyright.</p>
+        <p>If there were an actual file path associated with this book ({{ book.file_path }}), it would be rendered securely here.</p>
+        
+        <div style="margin-top: 50px;">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+            <p>Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.</p>
+            <p>Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet.</p>
+        </div>
+        
+        <div style="margin-top: 40px;">
+            <button onclick="window.close()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Close Reader</button>
+        </div>
+    </div>
+    
+    <!-- Disable keyboard shortcuts like Ctrl+S, Ctrl+P -->
+    <script>
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'c' || e.key === 'x')) {
+                e.preventDefault();
+                alert('Action disabled.');
+            }
+        });
+    </script>
+</body>
+</html>

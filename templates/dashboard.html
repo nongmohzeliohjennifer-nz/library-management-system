@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="list-group list-group-custom shadow-lg">
+            <div class="list-group-item text-white border-0 fw-bold d-flex align-items-center" style="background: rgba(15, 17, 30, 0.9);" disabled>
+                <i class="bi bi-grid-fill me-2 text-primary"></i>{{ _('dashboard') }}
+            </div>
+            {% if current_user.role == 'admin' %}
+                <a href="#" class="list-group-item list-group-item-action hub-toggle d-flex align-items-center" data-hub="admin">
+                    <i class="bi bi-shield-lock-fill me-2 text-purple"></i>{{ _('admin_hub') }}
+                </a>
+            {% endif %}
+            {% if current_user.role in ['admin', 'librarian'] %}
+                <a href="#" class="list-group-item list-group-item-action hub-toggle d-flex align-items-center" data-hub="librarian">
+                    <i class="bi bi-journal-bookmark-fill me-2 text-info"></i>{{ _('librarian_hub') }}
+                </a>
+            {% endif %}
+            <a href="#" class="list-group-item list-group-item-action hub-toggle d-flex align-items-center" data-hub="student">
+                <i class="bi bi-book-half me-2 text-success"></i>{{ _('student_hub') }}
+            </a>
+            <a href="#" class="list-group-item list-group-item-action hub-toggle d-flex align-items-center position-relative" data-hub="notifications">
+                <i class="bi bi-bell-fill me-2 text-warning"></i>{{ _('notifications') }}
+                {% if unread_count and unread_count > 0 %}
+                <span class="position-absolute top-50 start-0 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; margin-left: 1.2rem; margin-top: -0.5rem;">
+                    {{ unread_count }}
+                </span>
+                {% endif %}
+            </a>
+            <a href="#" class="list-group-item list-group-item-action hub-toggle d-flex align-items-center" data-hub="settings">
+                <i class="bi bi-gear-fill me-2 text-secondary"></i>{{ _('settings') }}
+            </a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div id="hub-content" class="glass-card p-4 shadow-lg" style="min-height: 450px;">
+            <div class="text-center py-5">
+                <i class="bi bi-bank2 text-primary mb-3" style="font-size: 3.5rem; filter: drop-shadow(0 0 10px var(--primary-glow));"></i>
+                <h3 class="fw-bold theme-heading">Welcome, {{ current_user.username }}!</h3>
+                <p class="text-secondary">Please select one of the control hubs on the left to start browsing or managing resources.</p>
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                    <span class="badge badge-role badge-{{ current_user.role }} px-3 py-2">Role: {{ current_user.role }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete popup overlay -->
+<div id="deletePopup" class="popup-overlay" style="display:none;">
+    <div class="popup-box">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-danger m-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+            <button type="button" class="btn-close btn-close-white" onclick="closePopup('deletePopup')"></button>
+        </div>
+        <form id="deleteForm" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <p id="deleteUserInfo" class="text-light mb-3"></p>
+            <div class="mb-3">
+                <label class="form-label">Enter your password to authorize:</label>
+                <input type="password" name="password" id="deletePassword" class="form-control" placeholder="Your password" required>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" onclick="closePopup('deletePopup')">Cancel</button>
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill me-1"></i>Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Book Detail popup overlay -->
+<div id="bookDetailPopup" class="popup-overlay" style="display:none;">
+    <div class="popup-box" style="max-width: 550px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-primary m-0"><i class="bi bi-book-fill me-2"></i><span id="bookDetailTitle"></span></h5>
+            <button type="button" class="btn-close btn-close-white" onclick="closePopup('bookDetailPopup')"></button>
+        </div>
+        <div id="bookDetailBody" class="text-light"></div>
+    </div>
+</div>
+
+<!-- Add User popup overlay -->
+<div id="addUserPopup" class="popup-overlay" style="display:none;">
+    <div class="popup-box" style="max-width: 500px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-success m-0"><i class="bi bi-person-plus-fill me-2"></i>Add New User</h5>
+            <button type="button" class="btn-close btn-close-white" onclick="closePopup('addUserPopup')"></button>
+        </div>
+        <form id="addUserForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="username" class="form-control" placeholder="Full name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Student Reg No or Staff ID</label>
+                <input type="text" name="identifier" class="form-control" placeholder="ID" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password for new user</label>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Role</label>
+                <select name="role" class="form-select">
+                    <option value="student">Student</option>
+                    {% if current_user.role == 'admin' %}
+                    <option value="librarian">Librarian</option>
+                    <option value="admin">Admin</option>
+                    {% endif %}
+                </select>
+            </div>
+            <hr class="border-secondary">
+            <div class="mb-3">
+                <label class="form-label text-warning"><i class="bi bi-shield-lock-fill me-1"></i>Your password to authorize:</label>
+                <input type="password" name="authorizer_password" class="form-control" placeholder="Enter your password" required>
+            </div>
+            <div id="addUserFeedback" class="mb-2"></div>
+            <button type="submit" class="btn btn-success-custom w-100"><i class="bi bi-person-plus-fill me-1"></i>Add User</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); z-index: 1050;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+}
+.popup-box {
+    background: rgba(15, 17, 30, 0.98); border: 1px solid var(--border-color);
+    border-radius: 16px; padding: 1.5rem; max-width: 420px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+</style>
+
+<script>
+function openPopup(id) {
+    document.getElementById(id).style.display = 'flex';
+}
+function closePopup(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Delegated listener for popup triggers
+    document.addEventListener('click', function(e) {
+        // Delete button
+        const delBtn = e.target.closest('[data-delete-user]');
+        if (delBtn) {
+            e.preventDefault();
+            const userId = delBtn.getAttribute('data-user-id');
+            const userIdent = delBtn.getAttribute('data-user-ident');
+            document.getElementById('deleteForm').action = "{{ url_for('library_dashboard.delete_user', user_id=0) }}".replace('/0', '/' + userId);
+            document.getElementById('deleteUserInfo').textContent = 'Are you sure you want to delete user "' + userIdent + '"? This will also clean up their borrow records.';
+            document.getElementById('deletePassword').value = '';
+            openPopup('deletePopup');
+            return;
+        }
+
+        // Add user button
+        const addBtn = e.target.closest('[data-add-user]');
+        if (addBtn) {
+            e.preventDefault();
+            document.getElementById('addUserForm').reset();
+            document.getElementById('addUserFeedback').innerHTML = '';
+            openPopup('addUserPopup');
+            return;
+        }
+
+        // Book detail button
+        const bookBtn = e.target.closest('[data-book-detail]');
+        if (bookBtn) {
+            e.preventDefault();
+            const title = bookBtn.getAttribute('data-book-title');
+            const author = bookBtn.getAttribute('data-book-author');
+            const isbn = bookBtn.getAttribute('data-book-isbn');
+            const genre = bookBtn.getAttribute('data-book-genre');
+            const type = bookBtn.getAttribute('data-book-type');
+            const avail = bookBtn.getAttribute('data-book-avail');
+            document.getElementById('bookDetailTitle').textContent = title;
+            document.getElementById('bookDetailBody').innerHTML =
+                '<div class="row g-3">' +
+                '<div class="col-6"><div class="stat-box"><div class="stat-label">Author</div><div class="fw-semibold mt-1">' + author + '</div></div></div>' +
+                '<div class="col-6"><div class="stat-box"><div class="stat-label">ISBN</div><div class="fw-semibold mt-1"><code class="text-info">' + isbn + '</code></div></div></div>' +
+                '<div class="col-6"><div class="stat-box"><div class="stat-label">Genre</div><div class="fw-semibold mt-1">' + genre + '</div></div></div>' +
+                '<div class="col-6"><div class="stat-box"><div class="stat-label">Type</div><div class="fw-semibold mt-1">' + type + '</div></div></div>' +
+                '<div class="col-12"><div class="stat-box"><div class="stat-label">Availability</div><div class="fw-semibold mt-1"><span class="badge bg-' + (avail === 'True' ? 'success' : 'danger') + '">' + (avail === 'True' ? 'Available' : 'Borrowed') + '</span></div></div></div>' +
+                '</div>';
+            openPopup('bookDetailPopup');
+            return;
+        }
+    });
+
+    // Add user form submission
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const data = {
+            username: form.querySelector('[name="username"]').value,
+            identifier: form.querySelector('[name="identifier"]').value,
+            email: form.querySelector('[name="email"]').value,
+            password: form.querySelector('[name="password"]').value,
+            role: form.querySelector('[name="role"]').value,
+            authorizer_password: form.querySelector('[name="authorizer_password"]').value
+        };
+        const feedback = document.getElementById('addUserFeedback');
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating...';
+
+        fetch('{{ url_for("auth.add_user") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                feedback.innerHTML = '<div class="alert alert-success py-2 small mb-0">' + res.message + '</div>';
+                setTimeout(function() { closePopup('addUserPopup'); location.reload(); }, 1000);
+            } else {
+                feedback.innerHTML = '<div class="alert alert-danger py-2 small mb-0">' + res.message + '</div>';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-person-plus-fill me-1"></i>Add User';
+            }
+        })
+        .catch(function(err) {
+            feedback.innerHTML = '<div class="alert alert-danger py-2 small mb-0">Error: ' + err.message + '</div>';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-person-plus-fill me-1"></i>Add User';
+        });
+    });
+});
+</script>
+{% endblock %}
