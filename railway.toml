@@ -1,0 +1,8 @@
+[build]
+
+[deploy]
+startCommand = "gunicorn -b 0.0.0.0:$PORT run:app"
+
+[variables]
+MISE_PYTHON_GITHUB_ATTESTATIONS = "false"
+RAILPACK_PYTHON_VERSION = "3.13"
